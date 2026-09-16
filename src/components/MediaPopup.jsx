@@ -1,20 +1,122 @@
 import React, { useState } from 'react';
-import { X, Calendar, CheckCircle2, TrendingUp, Share2, Award, Zap } from 'lucide-react';
+import {
+  X,
+  Calendar,
+  CheckCircle2,
+  TrendingUp,
+  Share2,
+  Zap,
+  Minimize2,
+  Maximize2,
+  ChevronRight,
+  Eye,
+  Layers
+} from 'lucide-react';
 
-export default function MediaPopup({ event, onClose }) {
+export default function MediaPopup({ event, onClose, isMinimized, setIsMinimized }) {
   if (!event) return null;
 
   const [activeTab, setActiveTab] = useState('overview');
+
+  // Minimized state pill: leaves 95%+ of the screen clear for the 3D model!
+  if (isMinimized) {
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          top: '75px',
+          right: '20px',
+          zIndex: 60,
+          pointerEvents: 'auto'
+        }}
+        className="animate-fade-in"
+      >
+        <div
+          className="glass-panel"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '10px 16px',
+            borderRadius: '24px',
+            border: `1.5px solid ${event.color}88`,
+            boxShadow: `0 8px 30px rgba(0,0,0,0.6), 0 0 20px ${event.color}33`,
+            cursor: 'pointer'
+          }}
+          onClick={() => setIsMinimized(false)}
+        >
+          <div
+            style={{
+              width: '10px',
+              height: '10px',
+              borderRadius: '50%',
+              background: event.color,
+              boxShadow: `0 0 8px ${event.color}`
+            }}
+          />
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: '11px', color: '#A0AEC0', fontWeight: 600 }}>
+              MILESTONE {event.year}
+            </span>
+            <span style={{ fontSize: '13px', color: '#ffffff', fontWeight: 700 }}>
+              {event.title}
+            </span>
+          </div>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsMinimized(false);
+            }}
+            style={{
+              background: 'rgba(255, 255, 255, 0.1)',
+              border: 'none',
+              color: '#ffffff',
+              padding: '6px 10px',
+              borderRadius: '12px',
+              fontSize: '11px',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            <Maximize2 size={12} />
+            Expand
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#A0AEC0',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center'
+            }}
+            title="Close popup"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
       style={{
         position: 'absolute',
-        top: '80px',
-        right: '24px',
-        width: '420px',
-        maxWidth: 'calc(100vw - 48px)',
-        maxHeight: 'calc(100vh - 200px)',
+        top: '75px',
+        right: '20px',
+        width: '380px',
+        maxWidth: 'calc(100vw - 40px)',
+        maxHeight: 'calc(100vh - 190px)',
         zIndex: 60,
         pointerEvents: 'auto'
       }}
@@ -24,15 +126,15 @@ export default function MediaPopup({ event, onClose }) {
         className="glass-panel"
         style={{
           borderRadius: '16px',
-          padding: '24px',
+          padding: '20px',
           overflowY: 'auto',
-          maxHeight: 'calc(100vh - 200px)',
-          border: `1px solid ${event.color}44`,
+          maxHeight: 'calc(100vh - 190px)',
+          border: `1px solid ${event.color}55`,
           boxShadow: `0 16px 48px rgba(0,0,0,0.7), 0 0 30px ${event.color}22`
         }}
       >
-        {/* Header with Close */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+        {/* Header & Controls */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
           <div>
             <div
               style={{
@@ -48,7 +150,7 @@ export default function MediaPopup({ event, onClose }) {
                 fontWeight: 700,
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
-                marginBottom: '8px'
+                marginBottom: '6px'
               }}
             >
               <Calendar size={12} />
@@ -57,46 +159,63 @@ export default function MediaPopup({ event, onClose }) {
             <h2
               style={{
                 fontFamily: "'Outfit', sans-serif",
-                fontSize: '1.4rem',
+                fontSize: '1.3rem',
                 fontWeight: 700,
                 color: '#ffffff',
-                lineHeight: 1.2
+                lineHeight: 1.25,
+                margin: 0
               }}
             >
               {event.title}
             </h2>
-            <div style={{ fontSize: '12px', color: '#A0AEC0', marginTop: '4px' }}>
+            <div style={{ fontSize: '11px', color: '#A0AEC0', marginTop: '3px' }}>
               {event.date}
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              border: 'none',
-              color: '#CBD5E0',
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
-              e.currentTarget.style.color = '#ffffff';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
-              e.currentTarget.style.color = '#CBD5E0';
-            }}
-            title="Close"
-          >
-            <X size={18} />
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {/* Minimize button */}
+            <button
+              onClick={() => setIsMinimized(true)}
+              style={{
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: 'none',
+                color: '#CBD5E0',
+                width: '28px',
+                height: '28px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              title="Minimize panel (unobstructed 3D view)"
+            >
+              <Minimize2 size={14} />
+            </button>
+
+            {/* Close button */}
+            <button
+              onClick={onClose}
+              style={{
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: 'none',
+                color: '#CBD5E0',
+                width: '28px',
+                height: '28px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              title="Close"
+            >
+              <X size={16} />
+            </button>
+          </div>
         </div>
 
         {/* Media Box */}
@@ -105,7 +224,7 @@ export default function MediaPopup({ event, onClose }) {
             style={{
               borderRadius: '12px',
               overflow: 'hidden',
-              marginBottom: '16px',
+              marginBottom: '14px',
               background: '#040609',
               border: '1px solid rgba(255, 255, 255, 0.08)'
             }}
@@ -115,17 +234,17 @@ export default function MediaPopup({ event, onClose }) {
               alt={event.media.caption}
               style={{
                 width: '100%',
-                height: '180px',
+                height: '160px',
                 objectFit: 'cover',
                 display: 'block'
               }}
             />
             <div
               style={{
-                padding: '8px 12px',
+                padding: '6px 10px',
                 fontSize: '11px',
                 color: '#CBD5E0',
-                background: 'rgba(10, 15, 20, 0.8)',
+                background: 'rgba(10, 15, 20, 0.85)',
                 borderTop: '1px solid rgba(255, 255, 255, 0.05)'
               }}
             >
@@ -137,23 +256,23 @@ export default function MediaPopup({ event, onClose }) {
         {/* Description */}
         <p
           style={{
-            fontSize: '13px',
-            lineHeight: '1.6',
+            fontSize: '12.5px',
+            lineHeight: '1.55',
             color: '#E2E8F0',
-            marginBottom: '18px'
+            marginBottom: '14px'
           }}
         >
           {event.description}
         </p>
 
-        {/* Sub-tabs Navigation */}
+        {/* Navigation Tabs */}
         <div
           style={{
             display: 'flex',
             gap: '8px',
             borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-            paddingBottom: '8px',
-            marginBottom: '16px'
+            paddingBottom: '6px',
+            marginBottom: '14px'
           }}
         >
           <button
@@ -166,7 +285,7 @@ export default function MediaPopup({ event, onClose }) {
               fontSize: '12px',
               cursor: 'pointer',
               borderBottom: activeTab === 'overview' ? `2px solid ${event.color}` : '2px solid transparent',
-              paddingBottom: '4px'
+              paddingBottom: '3px'
             }}
           >
             Overview
@@ -182,10 +301,10 @@ export default function MediaPopup({ event, onClose }) {
                 fontSize: '12px',
                 cursor: 'pointer',
                 borderBottom: activeTab === 'decisions' ? `2px solid ${event.color}` : '2px solid transparent',
-                paddingBottom: '4px'
+                paddingBottom: '3px'
               }}
             >
-              Decisions & Impact
+              Key Decisions
             </button>
           )}
           {event.achievements && (
@@ -199,7 +318,7 @@ export default function MediaPopup({ event, onClose }) {
                 fontSize: '12px',
                 cursor: 'pointer',
                 borderBottom: activeTab === 'achievements' ? `2px solid ${event.color}` : '2px solid transparent',
-                paddingBottom: '4px'
+                paddingBottom: '3px'
               }}
             >
               Achievements
@@ -211,15 +330,15 @@ export default function MediaPopup({ event, onClose }) {
         {activeTab === 'overview' && (
           <div>
             {event.details && (
-              <div style={{ display: 'grid', gap: '10px', marginBottom: '14px' }}>
+              <div style={{ display: 'grid', gap: '8px', marginBottom: '12px' }}>
                 {Object.entries(event.details).map(([k, v]) => (
                   <div
                     key={k}
                     style={{
                       background: 'rgba(255, 255, 255, 0.04)',
-                      padding: '10px 14px',
+                      padding: '8px 12px',
                       borderRadius: '8px',
-                      fontSize: '12px'
+                      fontSize: '11.5px'
                     }}
                   >
                     <span style={{ color: event.color, fontWeight: 600, textTransform: 'capitalize' }}>
@@ -237,12 +356,11 @@ export default function MediaPopup({ event, onClose }) {
                   background: 'rgba(0, 191, 255, 0.08)',
                   border: '1px solid rgba(0, 191, 255, 0.2)',
                   borderRadius: '10px',
-                  padding: '12px',
-                  marginTop: '10px'
+                  padding: '10px 12px'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', color: '#00BFFF', fontSize: '12px', fontWeight: 600 }}>
-                  <Share2 size={13} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', color: '#00BFFF', fontSize: '11.5px', fontWeight: 600 }}>
+                  <Share2 size={12} />
                   Digital Footprint ({event.socialMedia.twitter})
                 </div>
                 <div style={{ fontSize: '11px', color: '#A0AEC0' }}>
@@ -255,44 +373,44 @@ export default function MediaPopup({ event, onClose }) {
 
         {/* Tab Content: Decisions & Impact */}
         {activeTab === 'decisions' && (
-          <div style={{ display: 'grid', gap: '10px' }}>
+          <div style={{ display: 'grid', gap: '8px' }}>
             {event.decisions?.map((item, idx) => (
               <div
                 key={idx}
                 style={{
                   background: 'rgba(255, 255, 255, 0.04)',
                   border: '1px solid rgba(255, 255, 255, 0.08)',
-                  padding: '12px',
-                  borderRadius: '10px'
+                  padding: '10px 12px',
+                  borderRadius: '8px'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: event.color, fontWeight: 700, fontSize: '13px' }}>
-                  <Zap size={13} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: event.color, fontWeight: 700, fontSize: '12px' }}>
+                  <Zap size={12} />
                   {item.name}
                 </div>
-                <div style={{ fontSize: '12px', color: '#CBD5E0', marginTop: '4px', lineHeight: '1.4' }}>
+                <div style={{ fontSize: '11.5px', color: '#CBD5E0', marginTop: '3px', lineHeight: '1.4' }}>
                   {item.impact}
                 </div>
               </div>
             ))}
 
             {event.impact && (
-              <div style={{ display: 'grid', gap: '8px' }}>
+              <div style={{ display: 'grid', gap: '6px' }}>
                 {Object.entries(event.impact).map(([key, value]) => (
                   <div
                     key={key}
                     style={{
                       background: 'rgba(255, 255, 255, 0.04)',
-                      padding: '10px 12px',
+                      padding: '8px 10px',
                       borderRadius: '8px',
-                      fontSize: '12px'
+                      fontSize: '11.5px'
                     }}
                   >
                     <div style={{ color: '#FFD700', fontWeight: 600, textTransform: 'capitalize', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                      <TrendingUp size={12} />
+                      <TrendingUp size={11} />
                       {key.replace(/([A-Z])/g, ' $1')}
                     </div>
-                    <div style={{ color: '#E2E8F0', marginTop: '3px' }}>{value}</div>
+                    <div style={{ color: '#E2E8F0', marginTop: '2px' }}>{value}</div>
                   </div>
                 ))}
               </div>
@@ -302,15 +420,15 @@ export default function MediaPopup({ event, onClose }) {
 
         {/* Tab Content: Achievements */}
         {activeTab === 'achievements' && event.achievements && (
-          <div style={{ display: 'grid', gap: '8px' }}>
+          <div style={{ display: 'grid', gap: '6px' }}>
             {event.achievements.map((ach, idx) => (
               <div
                 key={idx}
                 style={{
                   display: 'flex',
                   alignItems: 'flex-start',
-                  gap: '8px',
-                  fontSize: '12px',
+                  gap: '6px',
+                  fontSize: '11.5px',
                   color: '#E2E8F0',
                   lineHeight: '1.4',
                   background: 'rgba(255, 255, 255, 0.03)',
@@ -318,7 +436,7 @@ export default function MediaPopup({ event, onClose }) {
                   borderRadius: '6px'
                 }}
               >
-                <CheckCircle2 size={14} color={event.color} style={{ flexShrink: 0, marginTop: '2px' }} />
+                <CheckCircle2 size={13} color={event.color} style={{ flexShrink: 0, marginTop: '2px' }} />
                 <span>{ach}</span>
               </div>
             ))}

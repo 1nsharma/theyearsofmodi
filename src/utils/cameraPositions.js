@@ -1,22 +1,34 @@
+import * as THREE from 'three';
 import { timelineData } from './timelineData';
 
-export const getDefaultCameraPosition = () => ({
-  position: [-10, 18, 50],
-  target: [10, 2, 0],
-  fov: 48
-});
+export const getDefaultCameraPosition = (hasPopup = false) => {
+  const xOffset = hasPopup ? 6 : 0;
+  return {
+    position: [-25 + xOffset, 14, 42],
+    target: [0 + xOffset, 2, 0],
+    fov: 46
+  };
+};
 
-export const getCameraPositionForMarker = (marker) => {
-  if (!marker) return getDefaultCameraPosition();
-  
+export const getCameraPositionForMarker = (marker, hasPopup = false) => {
+  if (!marker) return getDefaultCameraPosition(hasPopup);
+
+  // When popup is open on the right, shift target slightly to the right so
+  // the model is positioned in the open left-center zone of the viewport
+  const offsetDistance = hasPopup ? 5.5 : 0;
+
   return {
     position: [
       marker.cameraPosition?.x ?? marker.position.x,
-      marker.cameraPosition?.y ?? (marker.position.y + 10),
-      marker.cameraPosition?.z ?? (marker.position.z + 25)
+      marker.cameraPosition?.y ?? (marker.position.y + 9),
+      marker.cameraPosition?.z ?? (marker.position.z + 24)
     ],
-    target: [marker.position.x, marker.position.y + 1.5, marker.position.z],
-    fov: 45
+    target: [
+      marker.position.x + offsetDistance,
+      marker.position.y + 1.8,
+      marker.position.z
+    ],
+    fov: 44
   };
 };
 
@@ -26,16 +38,16 @@ export const cameraPresets = {
     target: [25, 5, 0],
     fov: 55
   },
-  modelFocus: {
-    position: [0, 8, 18],
-    target: [0, 2, 0],
-    fov: 40
-  },
-  cinematicSide: {
-    position: [55, 20, 45],
-    target: [30, 4, 10],
-    fov: 48
-  }
+  modelCloseUp: (modelPos) => ({
+    position: [modelPos.x - 4, modelPos.y + 3, modelPos.z + 10],
+    target: [modelPos.x, modelPos.y + 2, modelPos.z],
+    fov: 38
+  }),
+  cinematicSide: (modelPos) => ({
+    position: [modelPos.x + 12, modelPos.y + 6, modelPos.z + 18],
+    target: [modelPos.x + 3, modelPos.y + 2, modelPos.z],
+    fov: 45
+  })
 };
 
 export default {
