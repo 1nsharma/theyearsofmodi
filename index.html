@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Years of Modi — A Cinematic Journey Through Leadership</title>
+    <meta name="description" content="An immersive cinematic experience exploring the transformative journey of India under Prime Minister Narendra Modi. From 2014 to 2024 — a decade of change." />
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="The Years of Modi — A Cinematic Journey" />
+    <meta property="og:description" content="An immersive cinematic experience exploring the transformative journey of India under PM Narendra Modi. From 2014 to 2024." />
+    <meta property="og:site_name" content="The Years of Modi" />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="The Years of Modi — A Cinematic Journey" />
+    <meta name="twitter:description" content="An immersive cinematic experience exploring the transformative journey of India under PM Narendra Modi." />
+    
+    <!-- Theme -->
+    <meta name="theme-color" content="#0a0e1a" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ExhibitionEvent",
+      "name": "The Years of Modi — A Cinematic Journey",
+      "description": "An immersive digital exhibition exploring the transformative years of India under Prime Minister Narendra Modi (2014-2024)",
+      "startDate": "2014-05-26",
+      "endDate": "2024-12-31",
+      "eventStatus": "https://schema.org/EventScheduled",
+      "organizer": {
+        "@type": "Organization",
+        "name": "Digital Heritage Initiative"
+      }
+    }
+    </script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: #0a0e1a;
+        color: #ffffff;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      
+      /* Reduced motion */
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+        html {
+          scroll-behavior: auto;
+        }
+      }
+      
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0a0e1a;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: linear-gradient(to bottom, #FF9933, #138808);
+        border-radius: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
