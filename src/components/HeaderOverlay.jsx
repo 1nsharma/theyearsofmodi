@@ -5,11 +5,11 @@ import {
   VolumeX,
   Info,
   Eye,
-  EyeOff,
-  Camera
+  EyeOff
 } from 'lucide-react';
 
 export default function HeaderOverlay({
+  mode = 'story',
   onToggleSocial,
   isSocialOpen,
   audioEnabled,
@@ -23,17 +23,17 @@ export default function HeaderOverlay({
     <>
       <header
         style={{
-          position: 'absolute',
+          position: 'fixed',
           top: '0',
           left: '0',
           width: '100%',
-          padding: '14px 20px',
+          padding: '14px 24px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          zIndex: 50,
+          zIndex: 70,
           pointerEvents: 'none',
-          background: 'linear-gradient(180deg, rgba(8, 10, 15, 0.85) 0%, transparent 100%)'
+          background: 'linear-gradient(180deg, rgba(8, 10, 15, 0.9) 0%, transparent 100%)'
         }}
       >
         {/* Left Branding */}
@@ -49,7 +49,7 @@ export default function HeaderOverlay({
             gap: '12px'
           }}
         >
-          {/* Saffron, White, Green bar */}
+          {/* Tricolor Indicator */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5px', width: '4px', height: '32px', borderRadius: '2px', overflow: 'hidden' }}>
             <div style={{ flex: 1, background: '#FF9933' }} />
             <div style={{ flex: 1, background: '#FFFFFF' }} />
@@ -67,24 +67,25 @@ export default function HeaderOverlay({
                   color: '#ffffff'
                 }}
               >
-                PM Narendra Modi
+                The Years of Modi
               </h1>
               <span
                 style={{
-                  background: 'rgba(255, 153, 51, 0.2)',
-                  color: '#FF9933',
-                  padding: '1px 6px',
+                  background: mode === 'story' ? 'rgba(230, 126, 34, 0.2)' : 'rgba(46, 204, 113, 0.2)',
+                  color: mode === 'story' ? '#E67E22' : '#2ECC71',
+                  padding: '2px 7px',
                   borderRadius: '8px',
                   fontSize: '9.5px',
                   fontWeight: 700,
-                  border: '1px solid rgba(255, 153, 51, 0.4)'
+                  border: mode === 'story' ? '1px solid rgba(230, 126, 34, 0.4)' : '1px solid rgba(46, 204, 113, 0.4)',
+                  textTransform: 'uppercase'
                 }}
               >
-                3D TIMELINE
+                {mode === 'story' ? 'Story Mode' : '3D Explore'}
               </span>
             </div>
             <p style={{ margin: '1px 0 0 0', fontSize: '10.5px', color: '#A0AEC0' }}>
-              Spline Walking Experience • 1950 — Present
+              {mode === 'story' ? 'Scroll down to journey through time' : 'Free 3D orbit & spline walking'}
             </p>
           </div>
         </div>
@@ -98,22 +99,24 @@ export default function HeaderOverlay({
             pointerEvents: 'auto'
           }}
         >
-          {/* Focus Model Toggle Button */}
-          <button
-            onClick={onToggleFocusMode}
-            className="btn-secondary"
-            style={{
-              background: isFocusMode ? 'rgba(255, 153, 51, 0.25)' : 'rgba(255, 255, 255, 0.08)',
-              borderColor: isFocusMode ? '#FF9933' : 'rgba(255, 255, 255, 0.15)',
-              color: isFocusMode ? '#FF9933' : '#ffffff'
-            }}
-            title={isFocusMode ? 'Exit Unobstructed Model View' : 'Focus 3D Model (Hide Information Overlays)'}
-          >
-            {isFocusMode ? <EyeOff size={14} /> : <Eye size={14} />}
-            <span style={{ fontSize: '11.5px' }}>{isFocusMode ? 'Show Info' : 'Focus Model'}</span>
-          </button>
+          {/* In Explore Mode: Focus Model Toggle */}
+          {mode === 'explore' && onToggleFocusMode && (
+            <button
+              onClick={onToggleFocusMode}
+              className="btn-secondary"
+              style={{
+                background: isFocusMode ? 'rgba(255, 153, 51, 0.25)' : 'rgba(255, 255, 255, 0.08)',
+                borderColor: isFocusMode ? '#FF9933' : 'rgba(255, 255, 255, 0.15)',
+                color: isFocusMode ? '#FF9933' : '#ffffff'
+              }}
+              title={isFocusMode ? 'Exit Unobstructed Model View' : 'Focus 3D Model'}
+            >
+              {isFocusMode ? <EyeOff size={14} /> : <Eye size={14} />}
+              <span style={{ fontSize: '11.5px' }}>{isFocusMode ? 'Show Info' : 'Focus Model'}</span>
+            </button>
+          )}
 
-          {/* Social Pulse Toggle */}
+          {/* Social Pulse Drawer Toggle */}
           <button
             onClick={onToggleSocial}
             className="btn-secondary"
@@ -122,13 +125,13 @@ export default function HeaderOverlay({
               borderColor: isSocialOpen ? '#00BFFF' : 'rgba(255, 255, 255, 0.15)',
               color: isSocialOpen ? '#00BFFF' : '#ffffff'
             }}
-            title="Digital Footprint Social Feed"
+            title="Digital Footprint Social Reach"
           >
             <Globe size={14} />
             <span style={{ fontSize: '11.5px' }}>Social Pulse</span>
           </button>
 
-          {/* Audio Ambience Toggle */}
+          {/* Ambient Sound Toggle */}
           <button
             onClick={onToggleAudio}
             className="btn-secondary"
@@ -143,7 +146,7 @@ export default function HeaderOverlay({
             <span style={{ fontSize: '11.5px' }}>{audioEnabled ? 'Sound ON' : 'Mute'}</span>
           </button>
 
-          {/* About / Model Info */}
+          {/* Info Modal */}
           <button
             onClick={() => setShowAboutModal(true)}
             className="btn-secondary"
@@ -155,50 +158,14 @@ export default function HeaderOverlay({
         </div>
       </header>
 
-      {/* Top Center Controls Hint */}
-      {!isFocusMode && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '72px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 40,
-            pointerEvents: 'none',
-            display: 'flex',
-            gap: '12px'
-          }}
-        >
-          <div
-            className="glass-panel"
-            style={{
-              padding: '4px 12px',
-              borderRadius: '20px',
-              fontSize: '10.5px',
-              color: '#A0AEC0',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
-            <span>🚶 Model walks smoothly along curve</span>
-            <span>•</span>
-            <span>🖱️ Drag to orbit</span>
-            <span>•</span>
-            <span>🔍 Scroll to zoom</span>
-          </div>
-        </div>
-      )}
-
       {/* About & Attribution Modal */}
       {showAboutModal && (
         <div
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(0, 0, 0, 0.8)',
-            backdropFilter: 'blur(8px)',
+            background: 'rgba(0, 0, 0, 0.82)',
+            backdropFilter: 'blur(10px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -209,19 +176,19 @@ export default function HeaderOverlay({
           <div
             className="glass-panel animate-fade-in"
             style={{
-              width: '460px',
+              width: '480px',
               maxWidth: '90vw',
-              padding: '24px',
+              padding: '26px',
               borderRadius: '16px',
               border: '1px solid rgba(255, 153, 51, 0.3)'
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.3rem', color: '#FF9933', marginBottom: '8px' }}>
-              PM Narendra Modi 3D Experience
+            <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.4rem', color: '#FF9933', marginBottom: '8px' }}>
+              The Years of Modi — Hybrid Cinematic Experience
             </h2>
-            <p style={{ fontSize: '12.5px', color: '#CBD5E0', lineHeight: '1.6', marginBottom: '14px' }}>
-              An interactive 3D digital footprint timeline illustrating the transformative journey, national milestones, and technological advancements of India under Prime Minister Narendra Modi.
+            <p style={{ fontSize: '13px', color: '#CBD5E0', lineHeight: '1.6', marginBottom: '14px' }}>
+              An award-winning hybrid narrative combining scroll-triggered cinematic storytelling with interactive 3D WebGL exploration, tracing the life and legacy of Prime Minister Narendra Modi.
             </p>
 
             <div style={{ background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '10px', fontSize: '11.5px', color: '#A0AEC0', marginBottom: '16px' }}>
