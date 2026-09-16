@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { useGLTF, Center } from '@react-three/drei';
+import { useGLTF, Center, ContactShadows } from '@react-three/drei';
+import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import VelocityParticles from './VelocityParticles';
 
@@ -37,7 +38,7 @@ export default function ModelViewer({ currentSectionData, scrollVelocity = 0 }) 
   const innerRigRef = useRef();
   const { camera } = useThree();
 
-  // Load GLTF model safely with DRACO support
+  // Load GLTF model safely
   let gltf = null;
   try {
     gltf = useGLTF('/models/modi-model.glb', true);
@@ -87,32 +88,49 @@ export default function ModelViewer({ currentSectionData, scrollVelocity = 0 }) 
     }
   });
 
+  const chapterColor = currentSectionData?.chapterColor || '#E67E22';
+
   return (
     <>
       <group ref={modelGroupRef} position={[0, -0.2, 0]}>
-        {/* Soft warm spotlight on model */}
-        <spotLight
-          position={[4, 8, 6]}
-          intensity={2.6}
-          color="#FFF5E6"
-          angle={0.6}
-          penumbra={0.8}
+        {/* Three-Point Cinematic Lighting Setup */}
+        {/* 1. Warm Key Light */}
+        <directionalLight
+          position={[5, 8, 5]}
+          intensity={2.2}
+          color="#FFF5E8"
+          castShadow
         />
-        <pointLight position={[-4, 3, -2]} intensity={1.3} color="#E67E22" />
-        <pointLight position={[3, 2, -3]} intensity={1.0} color="#2ECC71" />
 
-        {/* Glowing base reflection ring */}
+        {/* 2. Dramatic Saffron Rim Light */}
+        <spotLight
+          position={[-6, 6, -4]}
+          intensity={3.5}
+          color={chapterColor}
+          angle={0.65}
+          penumbra={0.7}
+        />
+
+        {/* 3. Emerald Green Soft Fill Light */}
+        <pointLight
+          position={[5, 2, -3]}
+          intensity={1.4}
+          color="#138808"
+          distance={12}
+        />
+
+        {/* Golden Base Ambient Reflection Disc */}
         <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[0.9, 1.3, 32]} />
+          <ringGeometry args={[0.9, 1.45, 32]} />
           <meshBasicMaterial
-            color={currentSectionData?.chapterColor || '#E67E22'}
+            color={chapterColor}
             transparent
-            opacity={0.35}
+            opacity={0.4}
             side={THREE.DoubleSide}
           />
         </mesh>
 
-        {/* Model rig */}
+        {/* 3D Model with Auto-Centering */}
         <group ref={innerRigRef}>
           {gltf && gltf.scene ? (
             <Center bottom position={[0, 0, 0]}>
@@ -125,10 +143,36 @@ export default function ModelViewer({ currentSectionData, scrollVelocity = 0 }) 
             <FallbackModel />
           )}
         </group>
+
+        {/* Realistic Contact Shadows for Grounding */}
+        <ContactShadows
+          position={[0, -0.01, 0]}
+          opacity={0.68}
+          scale={10}
+          blur={1.8}
+          far={4}
+          resolution={512}
+          color="#000000"
+        />
       </group>
 
       {/* Scroll-Velocity Reactive Atmosphere Particles */}
       <VelocityParticles scrollVelocity={scrollVelocity} count={220} />
+
+      {/* Post-Processing Effects: Bloom & Vignette for Cinematic Glow */}
+      <EffectComposer disableNormalPass multisampling={0}>
+        <Bloom
+          luminanceThreshold={0.65}
+          luminanceSmoothing={0.9}
+          intensity={0.55}
+          mipmapBlur
+        />
+        <Vignette
+          offset={0.28}
+          darkness={0.65}
+          eskil={false}
+        />
+      </EffectComposer>
     </>
   );
 }
