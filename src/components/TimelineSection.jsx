@@ -10,7 +10,7 @@ export default function TimelineSection({ section, index, isActive }) {
       tabIndex={0}
       style={{
         minHeight: `${(section.duration || 1.8) * 90}vh`,
-        backgroundColor: section.backgroundColor || '#0a0e1a'
+        backgroundColor: 'transparent'
       }}
     >
       <div className="section-inner">

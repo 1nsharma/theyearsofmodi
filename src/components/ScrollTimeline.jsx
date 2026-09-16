@@ -29,11 +29,12 @@ export default function ScrollTimeline({ activeSectionIndex, onSectionChange, on
     });
     lenisRef.current = lenis;
 
-    function raf(time) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
+    // Synchronize Lenis smooth scroll with GSAP ticker
+    function updateLenis(time) {
+      lenis.raf(time * 1000);
     }
-    const rafId = requestAnimationFrame(raf);
+    gsap.ticker.add(updateLenis);
+    gsap.ticker.lagSmoothing(0);
 
     // Track scroll velocity for reactive particles & audio
     lenis.on('scroll', (e) => {
@@ -43,19 +44,19 @@ export default function ScrollTimeline({ activeSectionIndex, onSectionChange, on
       }
     });
 
-    gsap.ticker.add((time) => {
-      lenis.raf(time * 1000);
-    });
-    gsap.ticker.lagSmoothing(0);
-
     return () => {
-      cancelAnimationFrame(rafId);
+      gsap.ticker.remove(updateLenis);
       lenis.destroy();
     };
   }, [onVelocityChange]);
 
   // Set up ScrollTrigger triggers for each section
   useEffect(() => {
+    // Slight delay to allow DOM render and fonts to stabilize
+    const timeout = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 100);
+
     const triggers = scrollSections.map((section, index) => {
       const sectionEl = document.getElementById(`section-${index}`);
       if (!sectionEl) return null;
@@ -64,18 +65,17 @@ export default function ScrollTimeline({ activeSectionIndex, onSectionChange, on
         trigger: sectionEl,
         start: 'top center',
         end: 'bottom center',
-        onEnter: () => {
-          setCurrentSection(index);
-          onSectionChange?.(index, section);
-        },
-        onEnterBack: () => {
-          setCurrentSection(index);
-          onSectionChange?.(index, section);
+        onToggle: (self) => {
+          if (self.isActive) {
+            setCurrentSection(index);
+            onSectionChange?.(index, section);
+          }
         }
       });
     });
 
     return () => {
+      clearTimeout(timeout);
       triggers.forEach((t) => t && t.kill());
     };
   }, [onSectionChange]);

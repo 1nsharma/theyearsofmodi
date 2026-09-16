@@ -141,10 +141,12 @@ export default function App() {
     <div
       style={{
         position: 'relative',
-        width: '100vw',
-        height: '100vh',
+        width: '100%',
+        minHeight: '100vh',
         background: '#0a0e1a',
-        overflow: mode === 'story' ? 'auto' : 'hidden'
+        overflowX: 'hidden',
+        overflowY: mode === 'story' ? 'visible' : 'hidden',
+        height: mode === 'story' ? 'auto' : '100vh'
       }}
     >
       {/* Branded Preloader */}
