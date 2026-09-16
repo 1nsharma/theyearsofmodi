@@ -6,6 +6,8 @@ export default function TimelineSection({ section, index, isActive }) {
     <section
       id={`section-${index}`}
       className="timeline-section"
+      aria-label={`${section.year}: ${section.title}`}
+      tabIndex={0}
       style={{
         minHeight: `${(section.duration || 1.8) * 90}vh`,
         backgroundColor: section.backgroundColor || '#0a0e1a'
@@ -13,22 +15,26 @@ export default function TimelineSection({ section, index, isActive }) {
     >
       <div className="section-inner">
         {/* Left: Spacer anchor for 3D model */}
-        <div className="model-spacer" />
+        <div className="model-spacer" aria-hidden="true" />
 
         {/* Center: Media stage display */}
         <MediaStage media={section.media} isActive={isActive} />
 
         {/* Right: Narrative typography & details */}
-        <div className={`content-overlay ${isActive ? 'active' : ''}`}>
-          <div className="chapter-badge" style={{ color: section.chapterColor || '#E67E22' }}>
+        <article className={`content-overlay ${isActive ? 'active' : ''}`}>
+          <div
+            className="chapter-badge"
+            style={{ color: section.chapterColor || '#E67E22' }}
+            aria-label={`Chapter: ${section.chapter}`}
+          >
             {section.chapter}
           </div>
 
-          <h1 className="section-year">{section.year}</h1>
-          <h2 className="section-title">{section.title}</h2>
+          <h2 className="section-year">{section.year}</h2>
+          <h3 className="section-title">{section.title}</h3>
 
           {section.subtitle && (
-            <h3 className="section-subtitle">{section.subtitle}</h3>
+            <p className="section-subtitle">{section.subtitle}</p>
           )}
 
           {section.content && (
@@ -42,11 +48,14 @@ export default function TimelineSection({ section, index, isActive }) {
           )}
 
           {section.achievements && (
-            <ul className="section-list">
-              {section.achievements.map((item, i) => (
-                <li key={i}>{item}</li>
-              ))}
-            </ul>
+            <div className="section-decisions">
+              <h4>Key Achievements</h4>
+              <ul className="section-list">
+                {section.achievements.map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
+              </ul>
+            </div>
           )}
 
           {section.decisions && (
@@ -73,7 +82,7 @@ export default function TimelineSection({ section, index, isActive }) {
 
           {section.vision && (
             <div className="section-decisions">
-              <h4>Vision 2047</h4>
+              <h4>Vision 2047 Roadmap</h4>
               <ul className="section-list">
                 {section.vision.map((v, i) => (
                   <li key={i}>{v}</li>
@@ -81,7 +90,7 @@ export default function TimelineSection({ section, index, isActive }) {
               </ul>
             </div>
           )}
-        </div>
+        </article>
       </div>
     </section>
   );

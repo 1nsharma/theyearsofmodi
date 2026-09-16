@@ -8,6 +8,7 @@ import MediaPopup from './components/MediaPopup';
 import SocialFeed from './components/SocialFeed';
 import HeaderOverlay from './components/HeaderOverlay';
 import ModeToggle from './components/ModeToggle';
+import BrandedPreloader from './components/BrandedPreloader';
 import { scrollSections } from './utils/scrollData';
 import { timelineData } from './utils/timelineData';
 import './styles/scrollTimeline.css';
@@ -15,6 +16,8 @@ import './styles/scrollTimeline.css';
 export default function App() {
   const [mode, setMode] = useState('story'); // 'story' | 'explore'
   const [activeSectionIndex, setActiveSectionIndex] = useState(0);
+  const [scrollVelocity, setScrollVelocity] = useState(0);
+  const [isAppLoaded, setIsAppLoaded] = useState(false);
 
   // Explore mode states
   const [activeExploreEvent, setActiveExploreEvent] = useState(timelineData[0]);
@@ -29,9 +32,10 @@ export default function App() {
   const [audioEnabled, setAudioEnabled] = useState(false);
 
   const audioCtxRef = useRef(null);
+  const filterNodeRef = useRef(null);
   const gainNodeRef = useRef(null);
 
-  // Web Audio ambient drone synthesizer
+  // Web Audio ambient drone synthesizer with dynamic velocity filter modulation
   const toggleAudio = () => {
     if (!audioEnabled) {
       try {
@@ -45,6 +49,14 @@ export default function App() {
           masterGain.connect(ctx.destination);
           gainNodeRef.current = masterGain;
 
+          // Main low-pass filter for harmonic warmness
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(450, ctx.currentTime);
+          filter.connect(masterGain);
+          filterNodeRef.current = filter;
+
+          // Harmonic Indian classical drone chords (D3, A3, D4)
           const freqs = [146.83, 220.00, 293.66];
           freqs.forEach((freq, idx) => {
             const osc = ctx.createOscillator();
@@ -52,17 +64,10 @@ export default function App() {
 
             osc.type = idx === 0 ? 'sawtooth' : 'sine';
             osc.frequency.setValueAtTime(freq, ctx.currentTime);
-
-            const filter = ctx.createBiquadFilter();
-            filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(450, ctx.currentTime);
-
             oscGain.gain.setValueAtTime(idx === 0 ? 0.05 : 0.08, ctx.currentTime);
 
-            osc.connect(filter);
-            filter.connect(oscGain);
-            oscGain.connect(masterGain);
-
+            osc.connect(oscGain);
+            oscGain.connect(filter);
             osc.start();
           });
         } else if (audioCtxRef.current.state === 'suspended') {
@@ -79,6 +84,49 @@ export default function App() {
       setAudioEnabled(false);
     }
   };
+
+  // Dynamically modulate audio filter cutoff with scroll velocity
+  const handleVelocityChange = (vel) => {
+    setScrollVelocity(vel);
+    if (audioEnabled && filterNodeRef.current && audioCtxRef.current) {
+      const baseFreq = 450;
+      const boost = Math.min(Math.abs(vel) * 45, 600);
+      filterNodeRef.current.frequency.setTargetAtTime(
+        baseFreq + boost,
+        audioCtxRef.current.currentTime,
+        0.1
+      );
+    }
+  };
+
+  // Global keyboard shortcuts (M: Mode Toggle, A: Audio, Left/Right: Milestones in Explore)
+  useEffect(() => {
+    const handleGlobalKeyDown = (e) => {
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
+
+      if (e.key === 'm' || e.key === 'M') {
+        e.preventDefault();
+        setMode((prev) => (prev === 'story' ? 'explore' : 'story'));
+      } else if (e.key === 'a' || e.key === 'A') {
+        e.preventDefault();
+        toggleAudio();
+      } else if (mode === 'explore') {
+        const curIdx = timelineData.findIndex((i) => i.id === activeExploreEvent?.id);
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          const nextIdx = (curIdx + 1) % timelineData.length;
+          setActiveExploreEvent(timelineData[nextIdx]);
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          const prevIdx = (curIdx - 1 + timelineData.length) % timelineData.length;
+          setActiveExploreEvent(timelineData[prevIdx]);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [mode, activeExploreEvent, audioEnabled]);
 
   const currentScrollSection = scrollSections[activeSectionIndex] || scrollSections[0];
 
@@ -99,6 +147,9 @@ export default function App() {
         overflow: mode === 'story' ? 'auto' : 'hidden'
       }}
     >
+      {/* Branded Preloader */}
+      <BrandedPreloader onLoaded={() => setIsAppLoaded(true)} />
+
       {/* Universal Header */}
       <HeaderOverlay
         mode={mode}
@@ -113,7 +164,7 @@ export default function App() {
       {/* Mode Switcher Pill */}
       <ModeToggle mode={mode} onToggle={setMode} />
 
-      {/* MODE 1: STORY MODE (Scroll-Driven Narrative) */}
+      {/* MODE 1: STORY MODE (Scroll-Driven Cinematic Narrative) */}
       {mode === 'story' && (
         <>
           {/* Fixed 3D Background Canvas */}
@@ -135,7 +186,10 @@ export default function App() {
               <ambientLight intensity={0.75} />
               <directionalLight position={[15, 25, 20]} intensity={1.6} color="#FFF6E8" />
               <Suspense fallback={null}>
-                <ModelViewer currentSectionData={currentScrollSection} />
+                <ModelViewer
+                  currentSectionData={currentScrollSection}
+                  scrollVelocity={scrollVelocity}
+                />
               </Suspense>
             </Canvas>
           </div>
@@ -144,6 +198,7 @@ export default function App() {
           <ScrollTimeline
             activeSectionIndex={activeSectionIndex}
             onSectionChange={(index) => setActiveSectionIndex(index)}
+            onVelocityChange={handleVelocityChange}
           />
         </>
       )}
